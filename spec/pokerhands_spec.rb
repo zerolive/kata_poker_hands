@@ -7,4 +7,8 @@ describe "Poker Hands" do
 		expect{PokerHands.build("")}.to raise_error "Invalid hands: Wrong number of cars"
 	end
 
+	it "has two identical cards" do
+		expect{PokerHands.build("2H","3H","4H","5H","6H","6H","5D","4D","3D","2D")}.to raise_error "Invalid hands: You cant have two identical cards"
+	end
+
 end
