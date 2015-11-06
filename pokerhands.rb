@@ -1,33 +1,49 @@
 class PokerHands
 
-	CARDSINHAND = 10
+	RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"]
+	SUITS = ["C", "D", "H", "S"]
+	CARDSINHANDS = 10
+	CARDCHARS = 2
 
 	class << self
 
-		def build *cards
-			raise "Invalid hands: Wrong number of cars" if cards.count != CARDSINHAND
-			raise "Invalid hands: You cant have two identical cards" if looking_identical_cards(*cards)
-			raise "Invalid hands: Some card is invalid" if check_spelling(*cards)
+		def build *hands
+			hands = hands.map(&:upcase)
+			raise "Invalid hands: Wrong number of cars" unless have_ten_card *hands
+			raise "Invalid hands: Some card is invalid" unless spelling_is_right *hands
+			raise "Invalid hands: You cant have identical cards" unless have_some_repeated_card *hands
+			raise "Invalid hands: Some card doesnt exist" unless exist_some_card *hands
 		end
 
 		private
 
-			def looking_identical_cards *cards
-				return (cards.uniq.count != CARDSINHAND)
+			def exist_some_card *hands 
+				hands.each do |card|
+					return false unless RANKS.include?(card[0]) & SUITS.include?(card[1])
+				end
 			end
 
-			def check_spelling *cards
-				cards.each do |card|
- 					if !card.slice(2).nil?
- 						return true
- 					end
+			def have_some_repeated_card *hands
+				return hands.uniq.count == CARDSINHANDS
+			end
+
+			def spelling_is_right *hands
+				hands.each do |card|
+ 					return false unless card_has_two_characters(card)
  				end
- 				return false
+			end
+
+			def card_has_two_characters card
+				return card.length == CARDCHARS
+			end
+
+			def have_ten_card *hands
+				return hands.count == CARDSINHANDS
 			end
 	end
 
 end
 
-# C, D, H, S
-# A, 2, 3, 4, 5, 6, 7, 8, 9, T, J, Q, K
-#PokerHands.build("2H","3H","4H","5H","7H","6H","5D","4D","3D","22D")
+#	RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"]
+#	SUITS = ["C", "D", "H", "S"]
+PokerHands.build("2H","3H","4H","5H","7H","6H","5d","4D","3D","2D")
