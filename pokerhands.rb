@@ -7,11 +7,11 @@ class PokerHands
 
 		def build *hands
 			hands = hands.map(&:upcase)
-			RaiseWrongHands.build(*hands, RANKS, SUITS)
+			RaiseInvalidHands.build(*hands, RANKS, SUITS)
 		end
 
 		private
-		
+
 			def player_hand player, rankorsuit, *hands
 				hand = []
 				hands.each{ |card| 	hand << card[rankorsuit] }
@@ -22,11 +22,19 @@ class PokerHands
 				hands.delete_at(player) while hands.size > 5
 				return hands
 			end
+
+			def translate_ranks_to_values *hands
+				translated=[]
+				hands.each_with_index do |card, index|
+					translated << RANKSVALUE[RANKS.index(card)]
+				end
+				return translated
+			end
 	end
 
 end
 
-class RaiseWrongHands
+class RaiseInvalidHands
 	
 	CARDSINHANDS = 10
 	CARDCHARS = 2
