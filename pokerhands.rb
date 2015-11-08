@@ -2,28 +2,53 @@ class PokerHands
 
 	RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"]
 	SUITS = ["C", "D", "H", "S"]
-	CARDSINHANDS = 10
-	CARDCHARS = 2
 
 	class << self
 
 		def build *hands
 			hands = hands.map(&:upcase)
+			RaiseWrongHands.build(*hands, RANKS, SUITS)
+		end
+
+		private
+		
+			def player_hand player, rankorsuit, *hands
+				hand = []
+				hands.each{ |card| 	hand << card[rankorsuit] }
+				return remove_cards(*hand, player)
+			end
+
+			def remove_cards *hands, player
+				hands.delete_at(player) while hands.size > 5
+				return hands
+			end
+	end
+
+end
+
+class RaiseWrongHands
+	
+	CARDSINHANDS = 10
+	CARDCHARS = 2
+
+	class << self
+
+		def build *hands, ranks, suits
 			raise "Invalid hands: Wrong number of cars" unless have_ten_card *hands
 			raise "Invalid hands: Some card is invalid" unless spelling_is_right *hands
-			raise "Invalid hands: You cant have identical cards" unless have_some_repeated_card *hands
-			raise "Invalid hands: Some card doesnt exist" unless exist_some_card *hands
+			raise "Invalid hands: You cant have identical cards" unless have_any_repeated_card *hands
+			raise "Invalid hands: Some card doesnt exist" unless exist_any_card(*hands, ranks, suits)
 		end
 
 		private
 
-			def exist_some_card *hands 
+			def exist_any_card *hands, ranks, suits 
 				hands.each do |card|
-					return false unless RANKS.include?(card[0]) & SUITS.include?(card[1])
+					return false unless ranks.include?(card[0]) & suits.include?(card[1])
 				end
 			end
 
-			def have_some_repeated_card *hands
+			def have_any_repeated_card *hands
 				return hands.uniq.count == CARDSINHANDS
 			end
 
@@ -43,7 +68,4 @@ class PokerHands
 	end
 
 end
-
-#	RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"]
-#	SUITS = ["C", "D", "H", "S"]
-PokerHands.build("2H","3H","4H","5H","7H","6H","5d","4D","3D","2D")
+# PokerHands.build("2H","3H","4H","5H","7H","6H","5d","4D","3D","2D")
