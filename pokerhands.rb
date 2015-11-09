@@ -1,30 +1,39 @@
 class PokerHands
 
-	RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"]
+	RANKS = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
 	RANKSVALUE = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 	SUITS = ["C", "D", "H", "S"]
+	CARDSINHAND = 5
 
 	class << self
 
 		def build *hands
 			hands = hands.map(&:upcase)
 			RaiseInvalidHands.build(*hands, RANKS, SUITS)
+			winner = ""
+			winner = HighCard.build(*hands)
+			return winner
 		end
 
 		private
 
+
 			def player_hand player, rankorsuit, *hands
+				rankorsuitvalue = 1 if rankorsuit == "suits"
+				rankorsuitvalue = 0
 				hand = []
-				hands.each{ |card| 	hand << card[rankorsuit] }
+				hands.each{ |card| 	hand << card[rankorsuitvalue] }
 				return remove_cards(*hand, player)
 			end
 
 			def remove_cards *hands, player
-				hands.delete_at(player) while hands.size > 5
+				playervalue = 0
+				playervalue = 5 if player == "black"
+				hands.delete_at(playervalue) while hands.size > CARDSINHAND
 				return hands
 			end
 
-			def translate_ranks_to_values *hands
+			def ranks_to_values *hands
 				translated=[]
 				hands.each_with_index do |card, index|
 					translated << RANKSVALUE[RANKS.index(card)]
@@ -77,4 +86,29 @@ class RaiseInvalidHands
 	end
 
 end
-# PokerHands.build("2H","3H","4H","5H","7H","6H","5d","4D","3D","2D")
+
+class HighCard < PokerHands
+	class << self
+
+		def build *hands
+			highblackcard = high_card(*ranks_to_values(*player_hand("black", "ranks", *hands)))
+			highwhitekcard = high_card(*ranks_to_values(*player_hand("white", "ranks", *hands)))
+			return "Black player wins with Hightest card" if highblackcard > highwhitekcard
+			return "White player wins with Hightest card" if highwhitekcard > highblackcard
+			return "Tie"
+		end
+
+		private
+
+		def high_card *hand
+			highcard = 0
+			hand.each do |card|
+				highcard = card if card > highcard
+			end
+			return highcard
+		end
+	end
+
+end
+
+#p PokerHands.build("2c","3c","4c","5H","9h","6H","5c","4D","3D","2D")

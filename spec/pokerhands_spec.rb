@@ -25,4 +25,10 @@ describe "Poker Hands" do
 		expect{PokerHands.build("2H","3H","4H","5h","7H","6H","5D","4D","3D","DD")}.to raise_error "Invalid hands: Some card doesnt exist"
 		expect{PokerHands.build("2H","3H","4H","5H","7h","6H","5D","4D","3D","2D")}.to_not raise_error
 	end
+
+	it "knows who wins with highest card" do
+		expect(PokerHands.build("2c","3c","4c","5H","9h","6H","5c","4D","3D","2D")).to eq("Black player wins with Hightest card")
+		expect(PokerHands.build("2c","3c","4c","5H","6h","aH","5c","4D","3D","2D")).to eq("White player wins with Hightest card")
+		expect(PokerHands.build("2c","3c","4c","5H","7h","7c","5c","4D","3D","2D")).to eq("Tie")
+	end
 end
