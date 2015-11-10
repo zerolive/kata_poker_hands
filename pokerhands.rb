@@ -7,39 +7,38 @@ class PokerHands
 
 	class << self
 
-		def build *hands
+		def build hands
 			hands = hands.map(&:upcase)
-			RaiseInvalidHands.build(*hands, RANKS, SUITS)
-			winner = ""
-			winner = HighCard.build(*hands)
-			return winner
+			RaiseInvalidHands.build(hands, RANKS, SUITS)
+			return HighPair.build(hands)
 		end
 
 		private
 
 
-			def player_hand player, rankorsuit, *hands
-				rankorsuitvalue = 1 if rankorsuit == "suits"
+			def player_hand player, rankorsuit, hands
 				rankorsuitvalue = 0
+				rankorsuitvalue = 1 if rankorsuit == "suits"
 				hand = []
 				hands.each{ |card| 	hand << card[rankorsuitvalue] }
-				return remove_cards(*hand, player)
+				return remove_cards(hand, player)
 			end
 
-			def remove_cards *hands, player
+			def remove_cards hands, player
 				playervalue = 0
 				playervalue = 5 if player == "black"
 				hands.delete_at(playervalue) while hands.size > CARDSINHAND
-				return hands
+				return ranks_to_values(hands)
 			end
 
-			def ranks_to_values *hands
+			def ranks_to_values hands
 				translated=[]
 				hands.each_with_index do |card, index|
 					translated << RANKSVALUE[RANKS.index(card)]
 				end
 				return translated
-			end
+			end 
+
 	end
 
 end
@@ -51,26 +50,26 @@ class RaiseInvalidHands
 
 	class << self
 
-		def build *hands, ranks, suits
-			raise "Invalid hands: Wrong number of cars" unless have_ten_card *hands
-			raise "Invalid hands: Some card is invalid" unless spelling_is_right *hands
-			raise "Invalid hands: You cant have identical cards" unless have_any_repeated_card *hands
-			raise "Invalid hands: Some card doesnt exist" unless exist_any_card(*hands, ranks, suits)
+		def build hands, ranks, suits
+			raise "Invalid hands: Wrong number of cars" unless have_ten_card hands
+			raise "Invalid hands: Some card is invalid" unless spelling_is_right hands
+			raise "Invalid hands: You cant have identical cards" unless have_any_repeated_card hands
+			raise "Invalid hands: Some card doesnt exist" unless exist_any_card(hands, ranks, suits)
 		end
 
 		private
 
-			def exist_any_card *hands, ranks, suits 
+			def exist_any_card hands, ranks, suits 
 				hands.each do |card|
 					return false unless ranks.include?(card[0]) & suits.include?(card[1])
 				end
 			end
 
-			def have_any_repeated_card *hands
+			def have_any_repeated_card hands
 				return hands.uniq.count == CARDSINHANDS
 			end
 
-			def spelling_is_right *hands
+			def spelling_is_right hands
 				hands.each do |card|
  					return false unless card_has_two_characters(card)
  				end
@@ -80,35 +79,65 @@ class RaiseInvalidHands
 				return card.length == CARDCHARS
 			end
 
-			def have_ten_card *hands
+			def have_ten_card hands
 				return hands.count == CARDSINHANDS
 			end
 	end
 
 end
 
-class HighCard < PokerHands
+class HighPair < PokerHands
+
 	class << self
 
-		def build *hands
-			highblackcard = high_card(*ranks_to_values(*player_hand("black", "ranks", *hands)))
-			highwhitekcard = high_card(*ranks_to_values(*player_hand("white", "ranks", *hands)))
-			return "Black player wins with Hightest card" if highblackcard > highwhitekcard
-			return "White player wins with Hightest card" if highwhitekcard > highblackcard
+		def build hands
+			blackhand = player_hand("black", "ranks", hands)
+			whitehand = player_hand("white", "ranks", hands)
+			return "Black player wins with Pair" if high_pair(blackhand) != 0 && high_pair(whitehand) == 0
+			return "White player wins with Pair" if high_pair(blackhand) == 0 && high_pair(whitehand) != 0
+			return "Tie" if (high_pair(blackhand) == high_pair(whitehand)) && high_pair(blackhand) != 0
+			return "Black player wins with Hightest Pair" if high_pair(blackhand) > high_pair(whitehand)
+			return "White player wins with Hightest Pair" if high_pair(blackhand) < high_pair(whitehand)
+			return HighCard.build(hands)
+		end
+
+		private
+
+		def high_pair hand
+			card = 0
+			hand.detect do | checkcard | 
+				card = checkcard if hand.count(checkcard) > 1 
+			end
+			return card
+		end
+
+	end
+
+end
+
+class HighCard < PokerHands
+
+	class << self
+
+		def build hands
+			blackhighcard = high_card(player_hand("black", "ranks", hands))
+			whitehighkcard = high_card(player_hand("white", "ranks", hands))
+			return "Black player wins with Hightest card" if blackhighcard > whitehighkcard
+			return "White player wins with Hightest card" if whitehighkcard > blackhighcard
 			return "Tie"
 		end
 
 		private
 
-		def high_card *hand
-			highcard = 0
-			hand.each do |card|
-				highcard = card if card > highcard
+			def high_card hand
+				highcard = 0
+				hand.each do |card|
+					highcard = card if card > highcard
+				end
+				return highcard
 			end
-			return highcard
-		end
 	end
 
 end
 
-#p PokerHands.build("2c","3c","4c","5H","9h","6H","5c","4D","3D","2D")
+PokerHands.build(["2c","2d","4c","3d","ah","6H","7c","5h","4d","3c"])
