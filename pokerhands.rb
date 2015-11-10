@@ -88,29 +88,47 @@ end
 
 class HighPair < PokerHands
 
+	NOPAIRS = 5
+
 	class << self
 
 		def build hands
 			blackhand = player_hand("black", "ranks", hands)
 			whitehand = player_hand("white", "ranks", hands)
-			return "Black player wins with Pair" if high_pair(blackhand) != 0 && high_pair(whitehand) == 0
-			return "White player wins with Pair" if high_pair(blackhand) == 0 && high_pair(whitehand) != 0
-			return "Tie" if (high_pair(blackhand) == high_pair(whitehand)) && high_pair(blackhand) != 0
-			return "Black player wins with Hightest Pair" if high_pair(blackhand) > high_pair(whitehand)
-			return "White player wins with Hightest Pair" if high_pair(blackhand) < high_pair(whitehand)
+
+			return "Black player wins with the highest Pair" if has_highest_pair(blackhand, whitehand)
+			return "White player wins with the highest Pair" if has_highest_pair(whitehand, blackhand)
+
+			return "Black player wins with Pair" if has_pair_in(blackhand) && !has_pair_in(whitehand)
+			return "White player wins with Pair" if has_pair_in(whitehand) && !has_pair_in(blackhand)
+
+			return "Tie" if both_have_same_pair(blackhand, whitehand)
+
 			return HighCard.build(hands)
+			
 		end
 
 		private
 
-		def high_pair hand
-			card = 0
-			hand.detect do | checkcard | 
-				card = checkcard if hand.count(checkcard) > 1 
+			def high_pair hand
+				card = 0
+				hand.detect do | checkcard | 
+					card = checkcard if hand.count(checkcard) > 1 
+				end
+				return card
 			end
-			return card
-		end
 
+			def has_pair_in hand
+				hand.uniq.count != NOPAIRS
+			end
+
+			def both_have_same_pair blackhand, whitehand
+				(high_pair(blackhand) == high_pair(whitehand)) && has_pair_in(blackhand)
+			end
+
+			def has_highest_pair handone, handtwo
+				(high_pair(handone) > high_pair(handtwo)) && has_pair_in(handtwo)
+			end
 	end
 
 end
@@ -120,10 +138,10 @@ class HighCard < PokerHands
 	class << self
 
 		def build hands
-			blackhighcard = high_card(player_hand("black", "ranks", hands))
-			whitehighkcard = high_card(player_hand("white", "ranks", hands))
-			return "Black player wins with Hightest card" if blackhighcard > whitehighkcard
-			return "White player wins with Hightest card" if whitehighkcard > blackhighcard
+			blackhand = player_hand("black", "ranks", hands)
+			whitehand = player_hand("white", "ranks", hands)
+			return "Black player wins with the highest card" if has_highest_card(blackhand, whitehand)
+			return "White player wins with the highest card" if has_highest_card(whitehand, blackhand)
 			return "Tie"
 		end
 
@@ -136,8 +154,12 @@ class HighCard < PokerHands
 				end
 				return highcard
 			end
+
+			def has_highest_card handone, handtwo
+				high_card(handone) > high_card(handtwo)
+			end
 	end
 
 end
 
-PokerHands.build(["2c","2d","4c","3d","ah","6H","7c","5h","4d","3c"])
+#PokerHands.build(["2c","2d","4c","3d","ah","6H","7c","5h","4d","3c"])
