@@ -102,7 +102,7 @@ class HighPair < PokerHands
 			return "Black player wins with Pair" if has_pair_in(blackhand) && !has_pair_in(whitehand)
 			return "White player wins with Pair" if has_pair_in(whitehand) && !has_pair_in(blackhand)
 
-			return "Tie" if both_have_same_pair(blackhand, whitehand)
+			return "Tie with Pair" if both_have_same_pair(blackhand, whitehand)
 
 			return HighCard.build(hands)
 			
@@ -142,7 +142,7 @@ class HighCard < PokerHands
 			whitehand = player_hand("white", "ranks", hands)
 			return "Black player wins with the highest card" if has_highest_card(blackhand, whitehand)
 			return "White player wins with the highest card" if has_highest_card(whitehand, blackhand)
-			return "Tie"
+			return "Tie with the highest card"
 		end
 
 		private
@@ -162,4 +162,4 @@ class HighCard < PokerHands
 
 end
 
-#PokerHands.build(["2c","2d","4c","3d","ah","6H","7c","5h","4d","3c"])
+# PokerHands.build(["2c","2d","8c","4d","4h","6H","7c","3h","3d","9c"])
