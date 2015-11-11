@@ -27,8 +27,8 @@ describe "Poker Hands" do
 	end
 
 	it "knows who wins with highest card and tie" do
-		expect(PokerHands.build(["2c","3c","4c","5H","9h","6H","5c","4D","3D","2D"])).to eq("Black player wins with the highest card")
-		expect(PokerHands.build(["2c","3c","4c","5H","6h","aH","5c","4D","3D","2D"])).to eq("White player wins with the highest card")
+		expect(PokerHands.build(["2c","3c","4c","5H","9h","6H","5c","4D","3D","8D"])).to eq("Black player wins with the highest card")
+		expect(PokerHands.build(["2c","3c","4c","5H","7h","aH","5c","4D","3D","2D"])).to eq("White player wins with the highest card")
 		expect(PokerHands.build(["2c","3c","4c","5H","7h","7c","5c","4D","3D","2D"])).to eq("Tie with the highest card")
 	end
 
@@ -48,10 +48,19 @@ describe "Poker Hands" do
 		expect(PokerHands.build(["6c","6d","5h","5s","4c","4d","6h","6s","5c","5d"])).to eq("Tie with Pairs")
 	end
 
-	it "knows who win with three of a kind, highest three of a kind and tie" do
+	it "knows who win with three of a kind and highest three of a kind" do
 		expect(PokerHands.build(["2c","2d","2h","5s","6c","6d","7h","8s","9c","Ad"])).to eq("Black player wins with three of a kind")
 		expect(PokerHands.build(["2c","3d","4h","5s","6c","6d","7h","9s","9c","9d"])).to eq("White player wins with three of a kind")
 		expect(PokerHands.build(["9c","9d","9h","5s","6c","6d","7h","8s","8c","8d"])).to eq("Black player wins with the highest three of a kind")
 		expect(PokerHands.build(["2c","2d","2h","5s","6c","6d","7h","9s","9c","9d"])).to eq("White player wins with the highest three of a kind")
 	end
+
+	it "knows who win with straight, highest straight and tie" do
+		expect(PokerHands.build(["2c","3d","4h","5s","6c","6d","2h","8s","9c","Ad"])).to eq("Black player wins with straight")
+		expect(PokerHands.build(["2c","2d","4h","5s","6c","5d","6h","7s","8c","9d"])).to eq("White player wins with straight")
+		expect(PokerHands.build(["3c","4d","5h","6s","7c","2d","3h","4s","5c","6d"])).to eq("Black player wins with the highest straight")
+		expect(PokerHands.build(["2c","3d","4h","5s","6c","7d","6h","5s","4c","3d"])).to eq("White player wins with the highest straight")
+		expect(PokerHands.build(["2c","3d","4h","5s","6c","6d","5h","4s","3c","2d"])).to eq("Tie with straight")
+	end
+
 end
