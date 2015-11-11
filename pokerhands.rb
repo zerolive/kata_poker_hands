@@ -96,45 +96,40 @@ end
 
 class TwoPairs < PokerHands
 
-	TWOPAIRS = 3
+	TWOPAIRS = 2
 
 	class << self
 
 		def build blackhand, whitehand
+			blackpairs = duplicate_ranks(blackhand)
+			whitepairs = duplicate_ranks(whitehand)
 
-			return "Black player wins with Pairs" if has_pairs_in(blackhand) && !has_pairs_in(whitehand)
-			return "White player wins with Pairs" if has_pairs_in(whitehand) && !has_pairs_in(blackhand)
+			if everyone_have_pairs(blackpairs, whitepairs)
+				return "White player wins with the highest Pairs" if best_pairs_belongs(whitepairs, blackpairs)
+				return "Black player wins with the highest Pairs" if best_pairs_belongs(blackpairs, whitepairs)
+				return "Tie with Pairs" if have_same_pairs(blackpairs, whitepairs)
+			end
 
-			return "Black player wins with the highest Pairs" if best_pairs_belongs(blackhand, whitehand)
-			return "White player wins with the highest Pairs" if best_pairs_belongs(whitehand, blackhand)
-
-			return "Tie with Pairs" if have_same_pairs(blackhand, whitehand)
+			return "Black player wins with Pairs" if blackpairs.count == TWOPAIRS
+			return "White player wins with Pairs" if whitepairs.count == TWOPAIRS
 
 			return HighPair.build(blackhand, whitehand)
 		end
 
 		private
 
-			def has_pairs_in hand
-				hand.uniq.count == TWOPAIRS
+			def everyone_have_pairs pairs, pairstocompare
+				pairs.count == TWOPAIRS && pairstocompare.count == TWOPAIRS
 			end
 
-			def both_have_pairs handone, handtwo
-				has_pairs_in(handone) && has_pairs_in(handtwo)
+			def best_pairs_belongs pairs, pairstocompare
+				return true if pairs.max > pairstocompare.max
+				return false if pairs.max < pairstocompare.max
+				return true if pairs.min > pairstocompare.min
 			end
 
-			def best_pairs_belongs handone, handtwo
-				if both_have_pairs(handone, handtwo)
-					return true if duplicate_ranks(handone).max > duplicate_ranks(handtwo).max
-					return false if duplicate_ranks(handone).max < duplicate_ranks(handtwo).max
-					return true if duplicate_ranks(handone).min > duplicate_ranks(handtwo).min
-				end
-			end
-
-			def have_same_pairs handone, handtwo
-				if both_have_pairs(handone, handtwo)
-					return (duplicate_ranks(handone).max == duplicate_ranks(handtwo).max) && (duplicate_ranks(handone).min == duplicate_ranks(handtwo).min)
-				end
+			def have_same_pairs pairs, pairstocompare
+				pairs.max == pairstocompare.max && pairs.min == pairstocompare.min
 			end
 	end
 
