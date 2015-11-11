@@ -47,4 +47,11 @@ describe "Poker Hands" do
 		expect(PokerHands.build(["2c","2d","3h","3s","4c","4d","5h","5s","6c","6d"])).to eq("White player wins with the highest Pairs")
 		expect(PokerHands.build(["6c","6d","5h","5s","4c","4d","6h","6s","5c","5d"])).to eq("Tie with Pairs")
 	end
+
+	it "knows who win with three of a kind, highest three of a kind and tie" do
+		expect(PokerHands.build(["2c","2d","2h","5s","6c","6d","7h","8s","9c","Ad"])).to eq("Black player wins with three of a kind")
+		expect(PokerHands.build(["2c","3d","4h","5s","6c","6d","7h","9s","9c","9d"])).to eq("White player wins with three of a kind")
+		expect(PokerHands.build(["9c","9d","9h","5s","6c","6d","7h","8s","8c","8d"])).to eq("Black player wins with the highest three of a kind")
+		expect(PokerHands.build(["2c","2d","2h","5s","6c","6d","7h","9s","9c","9d"])).to eq("White player wins with the highest three of a kind")
+	end
 end
