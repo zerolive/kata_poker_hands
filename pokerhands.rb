@@ -47,6 +47,10 @@ class PokerHands
 				return dupcards
 			end
 
+			def both_have category, pairone, pairtwo
+				pairone.count == category && pairtwo.count == category
+			end
+
 	end
 
 end
@@ -101,12 +105,10 @@ class ThreeKind < PokerHands
 		THREEKIND = 3
 
 		def build blackhand, whitehand
-			
 			blackthree = duplicate_ranks(blackhand)
 			whitethree = duplicate_ranks(whitehand)			
-			
-			if blackthree.count == THREEKIND && whitethree.count == THREEKIND
 
+			if both_have(THREEKIND, blackthree, whitethree)
 				return "Black player wins with the highest three of a kind" if blackthree[0] > whitethree[0]
 				return "White player wins with the highest three of a kind" if whitethree[0] > blackthree[0]
 			end
@@ -130,8 +132,8 @@ class TwoPairs < PokerHands
 		def build blackhand, whitehand
 			blackpairs = duplicate_ranks(blackhand).uniq
 			whitepairs = duplicate_ranks(whitehand).uniq
-			
-			if everyone_have_pairs(blackpairs, whitepairs)
+
+			if both_have(TWOPAIRS, blackpairs, whitepairs)
 				return "White player wins with the highest Pairs" if best_pairs_belongs(whitepairs, blackpairs)
 				return "Black player wins with the highest Pairs" if best_pairs_belongs(blackpairs, whitepairs)
 				return "Tie with Pairs" if have_same_pairs(blackpairs, whitepairs)
@@ -164,13 +166,15 @@ end
 
 class HighPair < PokerHands
 
+	ONEPAIR = 2
+
 	class << self
 
 		def build blackhand, whitehand
-			blackpair = duplicate_ranks(blackhand).uniq
-			whitepair = duplicate_ranks(whitehand).uniq
+			blackpair = duplicate_ranks(blackhand)
+			whitepair = duplicate_ranks(whitehand)
 
-			if both_have_pair(blackpair, whitepair)
+			if both_have(ONEPAIR, blackpair, whitepair)
 				return "Black player wins with the highest Pair" if blackpair[0] > whitepair[0]
 				return "White player wins with the highest Pair" if whitepair[0] > blackpair[0]
 				return "Tie with Pair" if blackpair == whitepair
@@ -183,10 +187,6 @@ class HighPair < PokerHands
 		end
 
 		private
-
-			def both_have_pair pairone, pairtwo
-				!pairone.empty? && !pairtwo.empty?
-			end
 
 			def only_has_pair_in pairone, pairtwo
 				!pairone.empty? && pairtwo.empty?
@@ -215,4 +215,4 @@ class HighCard < PokerHands
 
 end
 
-p PokerHands.build(["3c","3d","3h","4s","6c","6d","7h","2s","2c","2d"])
+#p PokerHands.build(["3c","3d","2h","2s","6c","6d","7h","3s","4c","2d"])
