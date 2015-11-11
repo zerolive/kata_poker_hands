@@ -12,7 +12,7 @@ class PokerHands
 			RaiseInvalidHands.build(hands, RANKS, SUITS)
 			blackhand = player_hand("black", "ranks", hands)
 			whitehand = player_hand("white", "ranks", hands)
-			return TwoPairs.build(blackhand, whitehand)
+			return ThreeKind.build(blackhand, whitehand)
 		end
 
 		private
@@ -44,7 +44,7 @@ class PokerHands
 				dupcards = hand.select do |checkcard|
 					hand.count(checkcard) > 1
 				end
-				return dupcards.uniq
+				return dupcards
 			end
 
 	end
@@ -94,6 +94,33 @@ class RaiseInvalidHands
 
 end
 
+class ThreeKind < PokerHands
+
+	class << self
+
+		THREEKIND = 3
+
+		def build blackhand, whitehand
+			
+			blackthree = duplicate_ranks(blackhand)
+			whitethree = duplicate_ranks(whitehand)			
+			
+			if blackthree.count == THREEKIND && whitethree.count == THREEKIND
+
+				return "Black player wins with the highest three of a kind" if blackthree[0] > whitethree[0]
+				return "White player wins with the highest three of a kind" if whitethree[0] > blackthree[0]
+			end
+
+			return "Black player wins with three of a kind" if blackthree.count == THREEKIND
+			return "White player wins with three of a kind" if whitethree.count == THREEKIND
+
+			return TwoPairs.build(blackhand, whitehand)
+		end
+
+	end
+
+end
+
 class TwoPairs < PokerHands
 
 	TWOPAIRS = 2
@@ -101,9 +128,9 @@ class TwoPairs < PokerHands
 	class << self
 
 		def build blackhand, whitehand
-			blackpairs = duplicate_ranks(blackhand)
-			whitepairs = duplicate_ranks(whitehand)
-
+			blackpairs = duplicate_ranks(blackhand).uniq
+			whitepairs = duplicate_ranks(whitehand).uniq
+			
 			if everyone_have_pairs(blackpairs, whitepairs)
 				return "White player wins with the highest Pairs" if best_pairs_belongs(whitepairs, blackpairs)
 				return "Black player wins with the highest Pairs" if best_pairs_belongs(blackpairs, whitepairs)
@@ -140,8 +167,8 @@ class HighPair < PokerHands
 	class << self
 
 		def build blackhand, whitehand
-			blackpair = duplicate_ranks(blackhand)
-			whitepair = duplicate_ranks(whitehand)
+			blackpair = duplicate_ranks(blackhand).uniq
+			whitepair = duplicate_ranks(whitehand).uniq
 
 			if both_have_pair(blackpair, whitepair)
 				return "Black player wins with the highest Pair" if blackpair[0] > whitepair[0]
@@ -188,4 +215,4 @@ class HighCard < PokerHands
 
 end
 
-p PokerHands.build(["2c","3c","5c","5H","7h","6c","4c","4D","3D","2D"])
+p PokerHands.build(["3c","3d","3h","4s","6c","6d","7h","2s","2c","2d"])
