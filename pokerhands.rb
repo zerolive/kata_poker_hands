@@ -12,7 +12,7 @@ class PokerHands
 			RaiseInvalidHands.build(hands, RANKS, SUITS)
 			blackhand = player_hand("black", "ranks", hands)
 			whitehand = player_hand("white", "ranks", hands)
-			return ThreeKind.build(blackhand, whitehand)
+			return Straight.build(blackhand, whitehand)
 		end
 
 		private
@@ -49,6 +49,14 @@ class PokerHands
 
 			def both_have category, pairone, pairtwo
 				pairone.count == category && pairtwo.count == category
+			end
+
+			def have_straight_in hand
+				count = 0
+				hand.sort.each_with_index do |card, index|
+					count += 1 if (card+1) == (hand.sort[index+1])
+				end
+				return hand.max if count == 4
 			end
 
 	end
@@ -94,6 +102,35 @@ class RaiseInvalidHands
 			def have_ten_card hands
 				return hands.count == CARDSINHANDS
 			end
+	end
+
+end
+
+class Straight < PokerHands
+
+	class << self
+
+		def build blackhand, whitehand
+			if both_have_straight(blackhand, whitehand)
+				blackstraight = have_straight_in(blackhand)
+				whitestraight = have_straight_in(whitehand)
+				return "Black player wins with the highest straight" if blackstraight > whitestraight
+				return "White player wins with the highest straight" if whitestraight > blackstraight
+				return "Tie with straight" if blackstraight == whitestraight
+			end
+
+			return "Black player wins with straight" if have_straight_in(blackhand)
+			return "White player wins with straight" if have_straight_in(whitehand)
+
+			return ThreeKind.build(blackhand, whitehand)
+		end
+
+		private
+
+		def both_have_straight handone, handtwo
+			have_straight_in(handone) && have_straight_in(handtwo)
+		end
+
 	end
 
 end
