@@ -7,3 +7,5 @@ class Prueba
 end
 
 Prueba.build([2,2,3,3,4])
+probando = []
+p probando if probando.empty?

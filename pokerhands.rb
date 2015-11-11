@@ -10,11 +10,12 @@ class PokerHands
 		def build hands
 			hands = hands.map(&:upcase)
 			RaiseInvalidHands.build(hands, RANKS, SUITS)
-			return TwoPairs.build(hands)
+			blackhand = player_hand("black", "ranks", hands)
+			whitehand = player_hand("white", "ranks", hands)
+			return TwoPairs.build(blackhand, whitehand)
 		end
 
 		private
-
 
 			def player_hand player, rankorsuit, hands
 				rankorsuitvalue = 0
@@ -38,6 +39,13 @@ class PokerHands
 				end
 				return translated
 			end 
+
+			def duplicate_ranks hand
+				dupcards = hand.select do |checkcard|
+					hand.count(checkcard) > 1
+				end
+				return dupcards.uniq
+			end
 
 	end
 
@@ -92,48 +100,40 @@ class TwoPairs < PokerHands
 
 	class << self
 
-		def build hands
-			blackhand = player_hand("black", "ranks", hands)
-			whitehand = player_hand("white", "ranks", hands)
+		def build blackhand, whitehand
 
-			return "Black player wins with Pairs" if has_pairs(blackhand) && !has_pairs(whitehand)
-			return "White player wins with Pairs" if has_pairs(whitehand) && !has_pairs(blackhand)
+			return "Black player wins with Pairs" if has_pairs_in(blackhand) && !has_pairs_in(whitehand)
+			return "White player wins with Pairs" if has_pairs_in(whitehand) && !has_pairs_in(blackhand)
 
 			return "Black player wins with the highest Pairs" if best_pairs_belongs(blackhand, whitehand)
 			return "White player wins with the highest Pairs" if best_pairs_belongs(whitehand, blackhand)
 
 			return "Tie with Pairs" if have_same_pairs(blackhand, whitehand)
 
-			return HighPair.build(hands)
+			return HighPair.build(blackhand, whitehand)
 		end
 
 		private
 
-			def has_pairs hand
+			def has_pairs_in hand
 				hand.uniq.count == TWOPAIRS
 			end
 
-			def pairs hand
-				dupvalues = hand.select{|element| hand.count(element) > 1 }
-				return dupvalues.uniq
-			end
-
 			def both_have_pairs handone, handtwo
-				has_pairs(handone) && has_pairs(handtwo)
+				has_pairs_in(handone) && has_pairs_in(handtwo)
 			end
 
 			def best_pairs_belongs handone, handtwo
-				if has_pairs(handone) && has_pairs(handtwo)
-					return true if pairs(handone).max > pairs(handtwo).max
-					return false if pairs(handone).max < pairs(handtwo).max
-					return true if pairs(handone).min > pairs(handtwo).min
-					return false
+				if both_have_pairs(handone, handtwo)
+					return true if duplicate_ranks(handone).max > duplicate_ranks(handtwo).max
+					return false if duplicate_ranks(handone).max < duplicate_ranks(handtwo).max
+					return true if duplicate_ranks(handone).min > duplicate_ranks(handtwo).min
 				end
 			end
 
 			def have_same_pairs handone, handtwo
 				if both_have_pairs(handone, handtwo)
-					return (pairs(handone).max == pairs(handtwo).max) && (pairs(handone).min == pairs(handtwo).min)
+					return (duplicate_ranks(handone).max == duplicate_ranks(handtwo).max) && (duplicate_ranks(handone).min == duplicate_ranks(handtwo).min)
 				end
 			end
 	end
@@ -142,47 +142,34 @@ end
 
 class HighPair < PokerHands
 
-	ONEPAIR = 4
-
 	class << self
 
-		def build hands
-			blackhand = player_hand("black", "ranks", hands)
-			whitehand = player_hand("white", "ranks", hands)
+		def build blackhand, whitehand
+			blackpair = duplicate_ranks(blackhand)
+			whitepair = duplicate_ranks(whitehand)
 
-			return "Black player wins with the highest Pair" if has_highest_pair(blackhand, whitehand)
-			return "White player wins with the highest Pair" if has_highest_pair(whitehand, blackhand)
+			if both_have_pair(blackpair, whitepair)
+				return "Black player wins with the highest Pair" if blackpair[0] > whitepair[0]
+				return "White player wins with the highest Pair" if whitepair[0] > blackpair[0]
+				return "Tie with Pair" if blackpair == whitepair
+			end
 
-			return "Black player wins with Pair" if has_pair_in(blackhand) && !has_pair_in(whitehand)
-			return "White player wins with Pair" if has_pair_in(whitehand) && !has_pair_in(blackhand)
+			return "Black player wins with Pair" if only_has_pair_in(blackpair, whitepair)
+			return "White player wins with Pair" if only_has_pair_in(whitepair, blackpair)
 
-			return "Tie with Pair" if both_have_same_pair(blackhand, whitehand)
-
-			return HighCard.build(hands)
-			
+			return HighCard.build(blackhand, whitehand)
 		end
 
 		private
 
-			def high_pair hand
-				card = 0
-				hand.detect do | checkcard | 
-					card = checkcard if hand.count(checkcard) > 1 
-				end
-				return card
+			def both_have_pair pairone, pairtwo
+				!pairone.empty? && !pairtwo.empty?
 			end
 
-			def has_pair_in hand
-				hand.uniq.count == ONEPAIR
+			def only_has_pair_in pairone, pairtwo
+				!pairone.empty? && pairtwo.empty?
 			end
 
-			def both_have_same_pair blackhand, whitehand
-				(high_pair(blackhand) == high_pair(whitehand)) && has_pair_in(blackhand)
-			end
-
-			def has_highest_pair handone, handtwo
-				(high_pair(handone) > high_pair(handtwo)) && has_pair_in(handtwo)
-			end
 	end
 
 end
@@ -191,9 +178,7 @@ class HighCard < PokerHands
 
 	class << self
 
-		def build hands
-			blackhand = player_hand("black", "ranks", hands)
-			whitehand = player_hand("white", "ranks", hands)
+		def build blackhand, whitehand
 			return "Black player wins with the highest card" if has_highest_card(blackhand, whitehand)
 			return "White player wins with the highest card" if has_highest_card(whitehand, blackhand)
 			return "Tie with the highest card"
@@ -201,19 +186,11 @@ class HighCard < PokerHands
 
 		private
 
-			def high_card hand
-				highcard = 0
-				hand.each do |card|
-					highcard = card if card > highcard
-				end
-				return highcard
-			end
-
 			def has_highest_card handone, handtwo
-				high_card(handone) > high_card(handtwo)
+				handone.max > handtwo.max
 			end
 	end
 
 end
 
-#p PokerHands.build(["2c","2d","3h","3s","4c","4d","5c","6d","7h","8s"])
+p PokerHands.build(["2c","3c","5c","5H","7h","6c","4c","4D","3D","2D"])
