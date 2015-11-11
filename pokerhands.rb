@@ -10,7 +10,7 @@ class PokerHands
 		def build hands
 			hands = hands.map(&:upcase)
 			RaiseInvalidHands.build(hands, RANKS, SUITS)
-			return HighPair.build(hands)
+			return TwoPairs.build(hands)
 		end
 
 		private
@@ -86,9 +86,63 @@ class RaiseInvalidHands
 
 end
 
+class TwoPairs < PokerHands
+
+	TWOPAIRS = 3
+
+	class << self
+
+		def build hands
+			blackhand = player_hand("black", "ranks", hands)
+			whitehand = player_hand("white", "ranks", hands)
+
+			return "Black player wins with Pairs" if has_pairs(blackhand) && !has_pairs(whitehand)
+			return "White player wins with Pairs" if has_pairs(whitehand) && !has_pairs(blackhand)
+
+			return "Black player wins with the highest Pairs" if best_pairs_belongs(blackhand, whitehand)
+			return "White player wins with the highest Pairs" if best_pairs_belongs(whitehand, blackhand)
+
+			return "Tie with Pairs" if have_same_pairs(blackhand, whitehand)
+
+			return HighPair.build(hands)
+		end
+
+		private
+
+			def has_pairs hand
+				hand.uniq.count == TWOPAIRS
+			end
+
+			def pairs hand
+				dupvalues = hand.select{|element| hand.count(element) > 1 }
+				return dupvalues.uniq
+			end
+
+			def both_have_pairs handone, handtwo
+				has_pairs(handone) && has_pairs(handtwo)
+			end
+
+			def best_pairs_belongs handone, handtwo
+				if has_pairs(handone) && has_pairs(handtwo)
+					return true if pairs(handone).max > pairs(handtwo).max
+					return false if pairs(handone).max < pairs(handtwo).max
+					return true if pairs(handone).min > pairs(handtwo).min
+					return false
+				end
+			end
+
+			def have_same_pairs handone, handtwo
+				if both_have_pairs(handone, handtwo)
+					return (pairs(handone).max == pairs(handtwo).max) && (pairs(handone).min == pairs(handtwo).min)
+				end
+			end
+	end
+
+end
+
 class HighPair < PokerHands
 
-	NOPAIRS = 5
+	ONEPAIR = 4
 
 	class << self
 
@@ -119,7 +173,7 @@ class HighPair < PokerHands
 			end
 
 			def has_pair_in hand
-				hand.uniq.count != NOPAIRS
+				hand.uniq.count == ONEPAIR
 			end
 
 			def both_have_same_pair blackhand, whitehand
@@ -162,4 +216,4 @@ class HighCard < PokerHands
 
 end
 
-# PokerHands.build(["2c","2d","8c","4d","4h","6H","7c","3h","3d","9c"])
+#p PokerHands.build(["2c","2d","3h","3s","4c","4d","5c","6d","7h","8s"])
