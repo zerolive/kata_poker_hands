@@ -29,7 +29,9 @@ describe "Poker Hands" do
 	it "knows who wins with highest card and tie" do
 		expect(PokerHands.build(["2c","3c","4c","5H","9h","6H","5c","4D","3D","8D"])).to eq("Black player wins with the highest card")
 		expect(PokerHands.build(["2c","3c","4c","5H","7h","aH","5c","4D","3D","2D"])).to eq("White player wins with the highest card")
-		expect(PokerHands.build(["2c","3c","4c","5H","7h","7c","5c","4D","3D","2D"])).to eq("Tie with the highest card")
+		expect(PokerHands.build(["3c", "5d", "6h", "7s", "8c", "2d", "5h", "6s", "7c", "8d"])).to eq("Black player wins with the highest card")
+		expect(PokerHands.build(["2c", "5d", "6h", "7s", "8c", "3d", "5h", "6s", "7c", "8d"])).to eq("White player wins with the highest card")
+		expect(PokerHands.build(["3c", "5d", "6h", "7s", "8c", "3d", "5h", "6s", "7c", "8d"])).to eq("Tie with the highest card")
 	end
 
 	it "knows who win with pair, highest pair and tie" do
