@@ -235,6 +235,8 @@ end
 
 class HighCard < PokerHands
 
+	LASTCARD = 4
+
 	class << self
 
 		def build blackhand, whitehand
@@ -246,11 +248,9 @@ class HighCard < PokerHands
 		private
 
 			def has_highest_card handone, handtwo
-				hand = handone.sort
-				handtocompare = handtwo.sort
-				position = 4
+				position = LASTCARD
 				while position >= 0
-					return true if hand[position] > handtocompare[position]
+					return true if handone.sort[position] > handtwo.sort[position]
 					position -= 1
 				end
 			end
