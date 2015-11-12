@@ -238,18 +238,14 @@ class HighCard < PokerHands
 	class << self
 
 		def build blackhand, whitehand
-			return "Black player wins with the highest card" if has_highest(blackhand, whitehand)
-			return "White player wins with the highest card" if has_highest(whitehand, blackhand)
+			return "Black player wins with the highest card" if has_highest_card(blackhand, whitehand)
+			return "White player wins with the highest card" if has_highest_card(whitehand, blackhand)
 			return "Tie with the highest card" if blackhand.sort == whitehand.sort
 		end
 
 		private
 
 			def has_highest_card handone, handtwo
-				handone.max > handtwo.max
-			end
-
-			def has_highest handone, handtwo
 				hand = handone.sort
 				handtocompare = handtwo.sort
 				position = 4
