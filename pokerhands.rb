@@ -9,10 +9,10 @@ class PokerHands
 
 		def build hands
 			hands = hands.map(&:upcase)
+
 			RaiseInvalidHands.build(hands, RANKS, SUITS)
-			blackhand = player_hand("black", "ranks", hands)
-			whitehand = player_hand("white", "ranks", hands)
-			return Straight.build(blackhand, whitehand)
+
+			return Flush.build(hands)
 		end
 
 		private
@@ -59,6 +59,23 @@ class PokerHands
 				return hand.max if count == 4
 			end
 
+			def player_suits player, hands
+				hand = []
+				firstcard = 0
+				firstcard = 5 if player == "black"
+				hands.each{ |card| 	hand << card[1] }
+				hand.delete_at(firstcard) while hand.size > 5
+				return hand
+			end
+
+
+			def has_highest_card handone, handtwo
+				position = 4
+				while position >= 0
+					return true if handone.sort[position] > handtwo.sort[position]
+					position -= 1
+				end
+			end
 	end
 
 end
@@ -102,6 +119,34 @@ class RaiseInvalidHands
 			def have_ten_card hands
 				return hands.count == CARDSINHANDS
 			end
+	end
+
+end
+
+class Flush < PokerHands
+
+	class << self
+
+		def build hands
+			blackranks = player_hand("black", "ranks", hands)
+			whiteranks = player_hand("white", "ranks", hands)
+			blacksuits = player_suits("black", hands)
+			whitesuits = player_suits("white", hands)
+
+			if blacksuits.uniq.count == 1 && whitesuits.uniq.count == 1
+				return "Black player wins with the highest flush" if has_highest_card(blackranks, whiteranks)
+				return "White player wins with the highest flush" if has_highest_card(whiteranks, blackranks)
+				return "Tie with flush" if blackranks.sort == whiteranks.sort
+			end
+
+			return "Black player wins with flush" if blacksuits.uniq.count == 1
+			return "White player wins with flush" if whitesuits.uniq.count == 1
+
+			return Straight.build(blackranks, whiteranks)
+		end
+
+		private
+
 	end
 
 end
@@ -258,4 +303,4 @@ class HighCard < PokerHands
 
 end
 
-#p PokerHands.build(["3c","3d","2h","2s","6c","6d","7h","3s","4c","2d"])
+PokerHands.build(["3c","3d","2h","2s","6c","6d","7h","3s","4c","2d"])
