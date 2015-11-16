@@ -138,8 +138,8 @@ class FullHouse < PokerHands
 			whiteranks = player_ranks("white", hands)
 
 			if both_have_full_house(blackranks, whiteranks)
-				return "Black player wins with the highest full house" if blackranks.max > whiteranks.max
-				return "White player wins with the highest full house" if whiteranks.max > blackranks.max
+				return "Black player wins with the highest full house" if has_highest_full_house_on(blackranks, whiteranks)
+				return "White player wins with the highest full house" if has_highest_full_house_on(whiteranks, blackranks)
 			end
 
 			return "Black player wins with full house" if has_full_house(blackranks)
@@ -154,6 +154,10 @@ class FullHouse < PokerHands
 
 		def both_have_full_house handone, handtwo
 			has_full_house(handone) and has_full_house(handtwo)
+		end
+
+		def has_highest_full_house_on handone, handtwo
+			handone.max > handtwo.max
 		end
 
 	end
