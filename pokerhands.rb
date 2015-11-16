@@ -15,7 +15,7 @@ class PokerHands
 
 			RaiseInvalidHands.build(hands, RANKS, SUITS)
 
-			return FullHouse.build(hands)
+			return FourKind.build(hands)
 		end
 
 		private
@@ -125,6 +125,31 @@ class RaiseInvalidHands
 			def have_ten_card hands
 				return hands.count == CARDSINHANDS
 			end
+	end
+
+end
+
+class FourKind < PokerHands
+
+	class << self
+
+		def build hands
+			blackranks = player_ranks("black", hands)
+			whiteranks = player_ranks("white", hands)
+			blackfour = duplicate_ranks(blackranks)
+			whitefour = duplicate_ranks(whiteranks)
+
+			if (blackfour.count == 4 && whitefour.count == 4) && (blackfour.uniq.count == 1 && whitefour.uniq.count == 1)
+				return "Black player wins with the highest four of a kind" if blackfour[0] > whitefour[0]
+				return "White player wins with the highest four of a kind" if whitefour[0] > blackfour[0]
+			end
+
+			return "Black player wins with four of a kind" if blackfour.count == 4 && blackfour.uniq.count == 1
+			return "White player wins with four of a kind" if whitefour.count == 4 && whitefour.uniq.count == 1
+
+			return FullHouse.build(hands)
+		end
+
 	end
 
 end
@@ -239,16 +264,25 @@ class ThreeKind < PokerHands
 			whitethree = duplicate_ranks(whitehand)			
 
 			if both_have(THREEKIND, blackthree, whitethree)
-				return "Black player wins with the highest three of a kind" if blackthree[0] > whitethree[0]
+				return "Black player wins with the highest three of a kind" if has_highest_three_kind_in(blackthree, whitethree)
 				return "White player wins with the highest three of a kind" if whitethree[0] > blackthree[0]
 			end
 
-			return "Black player wins with three of a kind" if blackthree.count == THREEKIND
-			return "White player wins with three of a kind" if whitethree.count == THREEKIND
+			return "Black player wins with three of a kind" if has_three_kind_in(blackthree)
+			return "White player wins with three of a kind" if has_three_kind_in(whitethree)
 
 			return TwoPairs.build(blackhand, whitehand)
 		end
 
+		private
+
+			def has_three_kind_in hand
+				hand.count == THREEKIND
+			end
+
+			def has_highest_three_kind_in handone, handtwo
+				handone[0] > handtwo[0]
+			end
 	end
 
 end
