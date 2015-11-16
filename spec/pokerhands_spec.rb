@@ -79,4 +79,11 @@ describe "Poker Hands" do
 		expect(PokerHands.build(["4d","4h","4s","5c","5d","2c","2d","2h","3s","3c"])).to eq("Black player wins with the highest full house")
 		expect(PokerHands.build(["2c","2d","2h","3s","3c","4d","4h","4s","5c","5d"])).to eq("White player wins with the highest full house")
 	end
+
+	it "knows who win with four of a kind and highest four of a kind" do
+		expect(PokerHands.build(["2c","2d","2h","2s","6c","6d","7h","8s","9c","Ad"])).to eq("Black player wins with four of a kind")
+		expect(PokerHands.build(["2c","3d","4h","8s","6c","6d","9h","9s","9c","9d"])).to eq("White player wins with four of a kind")
+		expect(PokerHands.build(["9c","9d","9h","9s","6c","6d","8h","8s","8c","8d"])).to eq("Black player wins with the highest four of a kind")
+		expect(PokerHands.build(["2c","2d","2h","2s","6c","6d","9h","9s","9c","9d"])).to eq("White player wins with the highest four of a kind")
+	end
 end
