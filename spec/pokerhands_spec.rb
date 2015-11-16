@@ -72,4 +72,11 @@ describe "Poker Hands" do
 		expect(PokerHands.build(["3d","2d","5d","6d","7d","2c","4c","5c","6c","7c"])).to eq("White player wins with the highest flush")
 		expect(PokerHands.build(["3d","4d","5d","6d","7d","3c","4c","5c","6c","7c"])).to eq("Tie with flush")
 	end
+
+	it "knows who win with full house and the highest full house" do
+		expect(PokerHands.build(["3s","3c","2c","2d","2h","6d","3h","8s","9c","Ad"])).to eq("Black player wins with full house")
+		expect(PokerHands.build(["6d","3h","8s","9c","Ad","2c","2d","2h","3s","3c"])).to eq("White player wins with full house")
+		expect(PokerHands.build(["4d","4h","4s","5c","5d","2c","2d","2h","3s","3c"])).to eq("Black player wins with the highest full house")
+		expect(PokerHands.build(["2c","2d","2h","3s","3c","4d","4h","4s","5c","5d"])).to eq("White player wins with the highest full house")
+	end
 end
