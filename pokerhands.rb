@@ -15,7 +15,7 @@ class PokerHands
 
 			RaiseInvalidHands.build(hands, RANKS, SUITS)
 
-			return Flush.build(hands)
+			return FullHouse.build(hands)
 		end
 
 		private
@@ -125,6 +125,37 @@ class RaiseInvalidHands
 			def have_ten_card hands
 				return hands.count == CARDSINHANDS
 			end
+	end
+
+end
+
+class FullHouse < PokerHands
+
+	class << self
+
+		def build hands
+			blackranks = player_ranks("black", hands)
+			whiteranks = player_ranks("white", hands)
+
+			if both_have_full_house(blackranks, whiteranks)
+				return "Black player wins with the highest full house" if blackranks.max > whiteranks.max
+				return "White player wins with the highest full house" if whiteranks.max > blackranks.max
+			end
+
+			return "Black player wins with full house" if has_full_house(blackranks)
+			return "White player wins with full house" if has_full_house(whiteranks)
+
+			return Flush.build(hands)
+		end
+
+		def has_full_house hand
+			hand.uniq.count == 2
+		end
+
+		def both_have_full_house handone, handtwo
+			has_full_house(handone) and has_full_house(handtwo)
+		end
+
 	end
 
 end
