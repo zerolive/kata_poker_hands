@@ -4,6 +4,9 @@ class PokerHands
 	RANKSVALUE = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 	SUITS = ["C", "D", "H", "S"]
 	CARDSINHAND = 5
+	LASTCARD = 4
+	RANK = 0
+	SUIT = 1
 
 	class << self
 
@@ -17,28 +20,31 @@ class PokerHands
 
 		private
 
-			def player_hand player, rankorsuit, hands
-				rankorsuitvalue = 0
-				rankorsuitvalue = 1 if rankorsuit == "suits"
+			def player_ranks player, hands
 				hand = []
-				hands.each{ |card| 	hand << card[rankorsuitvalue] }
-				return remove_cards(hand, player)
-			end
-
-			def remove_cards hands, player
+				
 				playervalue = 0
 				playervalue = 5 if player == "black"
-				hands.delete_at(playervalue) while hands.size > CARDSINHAND
-				return ranks_to_values(hands)
+
+				hand = remove_suits(hands)
+				hand.delete_at(playervalue) while hand.size > CARDSINHAND
+
+				return translate_ranks_to_value(hand)
 			end
 
-			def ranks_to_values hands
+			def remove_suits hands
+				hand = []
+				hands.each{ |card| 	hand << card[RANK] }
+				return hand
+			end
+
+			def translate_ranks_to_value hand
 				translated=[]
-				hands.each_with_index do |card, index|
+				hand.each do |card|
 					translated << RANKSVALUE[RANKS.index(card)]
 				end
 				return translated
-			end 
+			end
 
 			def duplicate_ranks hand
 				dupcards = hand.select do |checkcard|
@@ -63,14 +69,14 @@ class PokerHands
 				hand = []
 				firstcard = 0
 				firstcard = 5 if player == "black"
-				hands.each{ |card| 	hand << card[1] }
-				hand.delete_at(firstcard) while hand.size > 5
+				hands.each{ |card| 	hand << card[SUIT] }
+				hand.delete_at(firstcard) while hand.size > CARDSINHAND
 				return hand
 			end
 
 
 			def has_highest_card handone, handtwo
-				position = 4
+				position = LASTCARD
 				while position >= 0
 					return true if handone.sort[position] > handtwo.sort[position]
 					position -= 1
@@ -128,25 +134,32 @@ class Flush < PokerHands
 	class << self
 
 		def build hands
-			blackranks = player_hand("black", "ranks", hands)
-			whiteranks = player_hand("white", "ranks", hands)
+			blackranks = player_ranks("black", hands)
+			whiteranks = player_ranks("white", hands)
 			blacksuits = player_suits("black", hands)
 			whitesuits = player_suits("white", hands)
 
-			if blacksuits.uniq.count == 1 && whitesuits.uniq.count == 1
+			if both_have_flush(blacksuits, whitesuits)
 				return "Black player wins with the highest flush" if has_highest_card(blackranks, whiteranks)
 				return "White player wins with the highest flush" if has_highest_card(whiteranks, blackranks)
 				return "Tie with flush" if blackranks.sort == whiteranks.sort
 			end
 
-			return "Black player wins with flush" if blacksuits.uniq.count == 1
-			return "White player wins with flush" if whitesuits.uniq.count == 1
+			return "Black player wins with flush" if has_flush_in(blacksuits)
+			return "White player wins with flush" if has_flush_in(whitesuits)
 
 			return Straight.build(blackranks, whiteranks)
 		end
 
 		private
 
+		def both_have_flush handone, handtwo
+			has_flush_in(handone) && has_flush_in(handtwo)
+		end
+
+		def has_flush_in hand
+			hand.uniq.count == 1
+		end
 	end
 
 end
@@ -280,8 +293,6 @@ end
 
 class HighCard < PokerHands
 
-	LASTCARD = 4
-
 	class << self
 
 		def build blackhand, whitehand
@@ -290,17 +301,8 @@ class HighCard < PokerHands
 			return "Tie with the highest card" if blackhand.sort == whitehand.sort
 		end
 
-		private
-
-			def has_highest_card handone, handtwo
-				position = LASTCARD
-				while position >= 0
-					return true if handone.sort[position] > handtwo.sort[position]
-					position -= 1
-				end
-			end
 	end
 
 end
 
-PokerHands.build(["3c","3d","2h","2s","6c","6d","7h","3s","4c","2d"])
+#PokerHands.build(["3c","3d","2h","2s","6c","6d","7h","3s","4c","2d"])
