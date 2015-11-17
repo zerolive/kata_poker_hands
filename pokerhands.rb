@@ -15,10 +15,22 @@ class PokerHands
 
 			RaiseInvalidHands.build(hands, RANKS, SUITS)
 
-			return FourKind.build(hands)
+			return StraightFlush.build(hands)
 		end
 
 		private
+
+			def both_have_flush handone, handtwo
+				has_flush_in(handone) && has_flush_in(handtwo)
+			end
+
+			def has_flush_in hand
+				hand.uniq.count == 1
+			end
+
+			def both_have_straight handone, handtwo
+				have_straight_in(handone) && have_straight_in(handtwo)
+			end
 
 			def player_ranks player, hands
 				hand = []
@@ -63,6 +75,7 @@ class PokerHands
 					count += 1 if (card+1) == (hand.sort[index+1])
 				end
 				return hand.max if count == 4
+				return false
 			end
 
 			def player_suits player, hands
@@ -125,6 +138,50 @@ class RaiseInvalidHands
 			def have_ten_card hands
 				return hands.count == CARDSINHANDS
 			end
+	end
+
+end
+
+class StraightFlush < PokerHands
+
+	class << self
+
+		def build hands
+			blackranks = player_ranks("black", hands)
+			whiteranks = player_ranks("white", hands)
+			blacksuits = player_suits("black", hands)
+			whitesuits = player_suits("white", hands)
+
+			if both_have_straightflush(blackranks, blacksuits, whiteranks, whitesuits)
+				return "Black player wins with the highest straight flush" if has_highest_straight_flush_on(blackranks, whiteranks)
+				return "White player wins with the highest straight flush" if has_highest_straight_flush_on(whiteranks, blackranks)
+				return "Tie with straight flush" if both_have_same_straight_flush(blackranks, whiteranks)
+			end
+
+			return "Black player wins with straight flush" if only_has_straightlush_in(blackranks, blacksuits, whiteranks)
+			return "White player wins with straight flush" if only_has_straightlush_in(whiteranks, whitesuits, blackranks)
+
+			return FourKind.build(hands)
+		end
+
+		private
+
+			def only_has_straightlush_in handoneranks, handonesuits, handtworanks
+				have_straight_in(handoneranks) && has_flush_in(handonesuits) && !have_straight_in(handtworanks)
+			end
+
+			def both_have_straightflush handoneranks, handonesuits, handtworanks, handtwosuits
+				have_straight_in(handoneranks) && has_flush_in(handonesuits) && have_straight_in(handtworanks) && has_flush_in(handtwosuits)
+			end
+
+			def has_highest_straight_flush_on handone, handtwo
+				have_straight_in(handone) > have_straight_in(handtwo)
+			end
+
+			def both_have_same_straight_flush handone, handtwo
+				have_straight_in(handone) == have_straight_in(handtwo)
+			end
+
 	end
 
 end
@@ -227,15 +284,6 @@ class Flush < PokerHands
 			return Straight.build(blackranks, whiteranks)
 		end
 
-		private
-
-		def both_have_flush handone, handtwo
-			has_flush_in(handone) && has_flush_in(handtwo)
-		end
-
-		def has_flush_in hand
-			hand.uniq.count == 1
-		end
 	end
 
 end
@@ -257,12 +305,6 @@ class Straight < PokerHands
 			return "White player wins with straight" if have_straight_in(whitehand)
 
 			return ThreeKind.build(blackhand, whitehand)
-		end
-
-		private
-
-		def both_have_straight handone, handtwo
-			have_straight_in(handone) && have_straight_in(handtwo)
 		end
 
 	end
