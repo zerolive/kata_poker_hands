@@ -86,4 +86,12 @@ describe "Poker Hands" do
 		expect(PokerHands.build(["9c","9d","9h","9s","6c","6d","8h","8s","8c","8d"])).to eq("Black player wins with the highest four of a kind")
 		expect(PokerHands.build(["2c","2d","2h","2s","6c","6d","9h","9s","9c","9d"])).to eq("White player wins with the highest four of a kind")
 	end
+
+	it "knows who win with straight flush, highest straight flush and tie" do
+		expect(PokerHands.build(["2c","3c","4c","5c","6c","6d","2h","8s","9c","Ad"])).to eq("Black player wins with straight flush")
+		expect(PokerHands.build(["2c","2d","4h","5s","6c","5d","6d","7d","8d","9d"])).to eq("White player wins with straight flush")
+		expect(PokerHands.build(["5d","6d","7d","8d","9d","2c","3c","4c","5c","6c"])).to eq("Black player wins with the highest straight flush")
+		expect(PokerHands.build(["2c","3c","4c","5c","6c","5d","6d","7d","8d","9d"])).to eq("White player wins with the highest straight flush")
+		expect(PokerHands.build(["5c","6c","7c","8c","9c","5d","6d","7d","8d","9d"])).to eq("Tie with straight flush")
+	end
 end
