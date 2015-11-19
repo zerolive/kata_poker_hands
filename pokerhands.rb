@@ -34,14 +34,17 @@ class PokerHands
 
 			def player_ranks player, hands
 				hand = []
-				
-				playervalue = 0
-				playervalue = 5 if player == "black"
-
 				hand = remove_suits(hands)
-				hand.delete_at(playervalue) while hand.size > CARDSINHAND
-
+				hand = remove_other_hand(player, hand)
 				return translate_ranks_to_value(hand)
+			end
+
+			def remove_other_hand player, hands
+				playername = 0
+				playername = 5 if player == "black"
+
+				hands.delete_at(playername) while hands.size > CARDSINHAND
+				return hands
 			end
 
 			def remove_suits hands
@@ -431,5 +434,3 @@ class HighCard < PokerHands
 	end
 
 end
-
-#PokerHands.build(["3c","3d","2h","2s","6c","6d","7h","3s","4c","2d"])
