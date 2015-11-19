@@ -402,19 +402,22 @@ class HighPair < PokerHands
 	class << self
 
 		def build blackhand, whitehand
+			winner = ''
+
 			blackpair = duplicate_ranks(blackhand)
 			whitepair = duplicate_ranks(whitehand)
 
 			if both_have(ONEPAIR, blackpair, whitepair)
-				return "Black player wins with the highest Pair" if has_highest_pair_on(blackpair, whitepair)
-				return "White player wins with the highest Pair" if has_highest_pair_on(whitepair, blackpair)
-				return "Tie with Pair" if both_have_same_pair(blackpair, whitepair)
+				winner = 'Black player wins with the highest Pair' if has_highest_pair_on(blackpair, whitepair) && winner.empty?
+				winner = 'White player wins with the highest Pair' if has_highest_pair_on(whitepair, blackpair) && winner.empty?
+				winner = 'Tie with Pair' if both_have_same_pair(blackpair, whitepair) && winner.empty?
 			end
 
-			return "Black player wins with Pair" if only_has_pair_in(blackpair, whitepair)
-			return "White player wins with Pair" if only_has_pair_in(whitepair, blackpair)
+			winner = 'Black player wins with Pair' if only_has_pair_in(blackpair, whitepair) && winner.empty?
+			winner = 'White player wins with Pair' if only_has_pair_in(whitepair, blackpair) && winner.empty?
 
-			return HighCard.build(blackhand, whitehand)
+			return HighCard.build(blackhand, whitehand) if winner.empty?
+			return winner
 		end
 
 		private
@@ -440,11 +443,11 @@ class HighCard < PokerHands
 	class << self
 
 		def build blackhand, whitehand
-			winner = ""
+			winner = ''
 
-			winner = "Black player wins with the highest card" if has_highest_card(blackhand, whitehand) && winner.empty?
-			winner = "White player wins with the highest card" if has_highest_card(whitehand, blackhand) && winner.empty?
-			winner = "Tie with the highest card" if both_have_same_cards(blackhand, whitehand) && winner.empty?
+			winner = 'Black player wins with the highest card' if has_highest_card(blackhand, whitehand) && winner.empty?
+			winner = 'White player wins with the highest card' if has_highest_card(whitehand, blackhand) && winner.empty?
+			winner = 'Tie with the highest card' if both_have_same_cards(blackhand, whitehand) && winner.empty?
 
 			return winner
 		end
