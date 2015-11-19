@@ -106,14 +106,15 @@ class RaiseInvalidHands
 	
 	CARDSINHANDS = 10
 	CARDCHARS = 2
+	INVALIDHANDS = "Invalid hands:"
 
 	class << self
 
 		def build hands, ranks, suits
-			raise "Invalid hands: Wrong number of cars" unless have_ten_card hands
-			raise "Invalid hands: Some card is invalid" unless spelling_is_right hands
-			raise "Invalid hands: You cant have identical cards" unless have_any_repeated_card hands
-			raise "Invalid hands: Some card doesnt exist" unless exist_any_card(hands, ranks, suits)
+			raise "#{INVALIDHANDS} Wrong number of cars" unless have_ten_card hands
+			raise "#{INVALIDHANDS} Some card is invalid" unless spelling_is_right hands
+			raise "#{INVALIDHANDS} You cant have identical cards" unless have_any_repeated_card hands
+			raise "#{INVALIDHANDS} Some card doesnt exist" unless exist_any_card(hands, ranks, suits)
 		end
 
 		private
