@@ -243,16 +243,18 @@ class FullHouse < PokerHands
 	class << self
 
 		def build blackranks, blacksuits, whiteranks, whitesuits
+			winner = ''
 
 			if both_have_full_house(blackranks, whiteranks)
-				return "Black player wins with the highest full house" if has_highest_full_house_on(blackranks, whiteranks)
-				return "White player wins with the highest full house" if has_highest_full_house_on(whiteranks, blackranks)
+				winner = 'Black player wins with the highest full house' if has_highest_full_house_on(blackranks, whiteranks) && winner.empty?
+				winner = 'White player wins with the highest full house' if has_highest_full_house_on(whiteranks, blackranks) && winner.empty?
 			end
 
-			return "Black player wins with full house" if has_full_house(blackranks)
-			return "White player wins with full house" if has_full_house(whiteranks)
+			winner = 'Black player wins with full house' if has_full_house(blackranks) && winner.empty?
+			winner = 'White player wins with full house' if has_full_house(whiteranks) && winner.empty?
 
-			return Flush.build(blackranks, blacksuits, whiteranks, whitesuits)
+			return Flush.build(blackranks, blacksuits, whiteranks, whitesuits) if winner.empty?
+			return winner
 		end
 
 		def has_full_house hand
