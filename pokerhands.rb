@@ -406,9 +406,9 @@ class HighPair < PokerHands
 			whitepair = duplicate_ranks(whitehand)
 
 			if both_have(ONEPAIR, blackpair, whitepair)
-				return "Black player wins with the highest Pair" if blackpair[0] > whitepair[0]
-				return "White player wins with the highest Pair" if whitepair[0] > blackpair[0]
-				return "Tie with Pair" if blackpair == whitepair
+				return "Black player wins with the highest Pair" if has_highest_pair_on(blackpair, whitepair)
+				return "White player wins with the highest Pair" if has_highest_pair_on(whitepair, blackpair)
+				return "Tie with Pair" if both_have_same_pair(blackpair, whitepair)
 			end
 
 			return "Black player wins with Pair" if only_has_pair_in(blackpair, whitepair)
@@ -421,6 +421,14 @@ class HighPair < PokerHands
 
 			def only_has_pair_in pairone, pairtwo
 				!pairone.empty? && pairtwo.empty?
+			end
+
+			def has_highest_pair_on handone, handtwo
+				handone[0] > handtwo[0]
+			end
+
+			def both_have_same_pair handone, handtwo
+				handone == handtwo
 			end
 
 	end
