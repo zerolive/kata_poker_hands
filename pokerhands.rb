@@ -279,7 +279,7 @@ class Flush < PokerHands
 			if both_have_flush(blacksuits, whitesuits)
 				return "Black player wins with the highest flush" if has_highest_card(blackranks, whiteranks)
 				return "White player wins with the highest flush" if has_highest_card(whiteranks, blackranks)
-				return "Tie with flush" if blackranks.sort == whiteranks.sort
+				return "Tie with flush" if both_have_same_flush(blackranks, whiteranks)
 			end
 
 			return "Black player wins with flush" if has_flush_in(blacksuits)
@@ -288,6 +288,11 @@ class Flush < PokerHands
 			return Straight.build(blackranks, whiteranks)
 		end
 
+		private
+
+			def both_have_same_flush handone, handtwo
+				handone.sort == handtwo.sort
+			end
 	end
 
 end
