@@ -13,7 +13,7 @@ class PokerHands
 		def build hands
 			hands = hands.map(&:upcase)
 
-			RaiseInvalidHands.build(hands, RANKS, SUITS)
+			RaiseInvalidHands.build(hands)
 
 			blackranks = player_ranks("black", hands)
 			whiteranks = player_ranks("white", hands)
@@ -123,18 +123,18 @@ class RaiseInvalidHands
 
 	class << self
 
-		def build hands, ranks, suits
+		def build hands
 			raise "#{INVALIDHANDS} Wrong number of cars" unless have_ten_card hands
 			raise "#{INVALIDHANDS} Some card is invalid" unless spelling_is_right hands
 			raise "#{INVALIDHANDS} You cant have identical cards" unless have_any_repeated_card hands
-			raise "#{INVALIDHANDS} Some card doesnt exist" unless exist_any_card(hands, ranks, suits)
+			raise "#{INVALIDHANDS} Some card doesnt exist" unless exist_any_card(hands)
 		end
 
 		private
 
-			def exist_any_card hands, ranks, suits 
+			def exist_any_card hands
 				hands.each do |card|
-					return false unless ranks.include?(card[0]) & suits.include?(card[1])
+					return false unless PokerHands::RANKS.include?(card[0]) & PokerHands::SUITS.include?(card[1])
 				end
 			end
 
@@ -164,17 +164,19 @@ class StraightFlush < PokerHands
 	class << self
 
 		def build blackranks, blacksuits, whiteranks, whitesuits
+			winner = ''
 
 			if both_have_straightflush(blackranks, blacksuits, whiteranks, whitesuits)
-				return "Black player wins with the highest straight flush" if has_highest_straight_flush_on(blackranks, whiteranks)
-				return "White player wins with the highest straight flush" if has_highest_straight_flush_on(whiteranks, blackranks)
-				return "Tie with straight flush" if both_have_same_straight_flush(blackranks, whiteranks)
+				winner = 'Black player wins with the highest straight flush' if has_highest_straight_flush_on(blackranks, whiteranks) && winner.empty?
+				winner = 'White player wins with the highest straight flush' if has_highest_straight_flush_on(whiteranks, blackranks) && winner.empty?
+				winner = 'Tie with straight flush' if both_have_same_straight_flush(blackranks, whiteranks) && winner.empty?
 			end
 
-			return "Black player wins with straight flush" if only_has_straightlush_in(blackranks, blacksuits, whiteranks)
-			return "White player wins with straight flush" if only_has_straightlush_in(whiteranks, whitesuits, blackranks)
+			winner = 'Black player wins with straight flush' if only_has_straightlush_in(blackranks, blacksuits, whiteranks) && winner.empty?
+			winner = 'White player wins with straight flush' if only_has_straightlush_in(whiteranks, whitesuits, blackranks) && winner.empty?
 
-			return FourKind.build(blackranks, blacksuits, whiteranks, whitesuits)
+			return FourKind.build(blackranks, blacksuits, whiteranks, whitesuits) if winner.empty?
+			return winner
 		end
 
 		private
