@@ -35,11 +35,11 @@ class PokerHands
 			def player_ranks player, hands
 				hand = []
 				hand = remove_suits(hands)
-				hand = remove_other_hand(player, hand)
+				hand = remove_hand(player, hand)
 				return translate_ranks_to_value(hand)
 			end
 
-			def remove_other_hand player, hands
+			def remove_hand player, hands
 				playername = 0
 				playername = 5 if player == "black"
 
@@ -87,10 +87,14 @@ class PokerHands
 
 			def player_suits player, hands
 				hand = []
-				firstcard = 0
-				firstcard = 5 if player == "black"
-				hands.each{ |card| 	hand << card[SUIT] }
-				hand.delete_at(firstcard) while hand.size > CARDSINHAND
+				hand = remove_ranks(hands)
+				hand = remove_hand(player, hand)
+				return hand
+			end
+
+			def remove_ranks hands
+				hand = []
+				hands.each{ |card|	hand << card[SUIT] }
 				return hand
 			end
 
