@@ -304,18 +304,21 @@ class Straight < PokerHands
 
 		def build blackranks, blacksuits, whiteranks, whitesuits
 
+			winner = ''
+
 			if both_have_straight(blackranks, whiteranks)
 				blackstraight = have_straight_in(blackranks)
 				whitestraight = have_straight_in(whiteranks)
-				return "Black player wins with the highest straight" if blackstraight > whitestraight
-				return "White player wins with the highest straight" if whitestraight > blackstraight
-				return "Tie with straight" if blackstraight == whitestraight
+				winner = 'Black player wins with the highest straight' if blackstraight > whitestraight && winner.empty?
+				winner = 'White player wins with the highest straight' if whitestraight > blackstraight && winner.empty?
+				winner = 'Tie with straight' if blackstraight == whitestraight && winner.empty?
 			end
 
-			return "Black player wins with straight" if have_straight_in(blackranks)
-			return "White player wins with straight" if have_straight_in(whiteranks)
+			winner = 'Black player wins with straight' if have_straight_in(blackranks) && winner.empty?
+			winner = 'White player wins with straight' if have_straight_in(whiteranks) && winner.empty?
 
-			return ThreeKind.build(blackranks, blacksuits, whiteranks, whitesuits)
+			return ThreeKind.build(blackranks, blacksuits, whiteranks, whitesuits) if winner.empty?
+			return winner
 		end
 
 	end
