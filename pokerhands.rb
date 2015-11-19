@@ -440,10 +440,20 @@ class HighCard < PokerHands
 	class << self
 
 		def build blackhand, whitehand
-			return "Black player wins with the highest card" if has_highest_card(blackhand, whitehand)
-			return "White player wins with the highest card" if has_highest_card(whitehand, blackhand)
-			return "Tie with the highest card" if blackhand.sort == whitehand.sort
+			winner = ""
+
+			winner = "Black player wins with the highest card" if has_highest_card(blackhand, whitehand) && winner.empty?
+			winner = "White player wins with the highest card" if has_highest_card(whitehand, blackhand) && winner.empty?
+			winner = "Tie with the highest card" if both_have_same_cards(blackhand, whitehand) && winner.empty?
+
+			return winner
 		end
+
+		private
+
+			def both_have_same_cards handone, handtwo
+				handone.sort == handtwo.sort
+			end
 
 	end
 
