@@ -332,15 +332,18 @@ class ThreeKind < PokerHands
 			blackthree = duplicate_ranks(blackranks)
 			whitethree = duplicate_ranks(whiteranks)			
 
+			winner = ''
+
 			if both_have_in_hand(THREEKIND, blackthree, whitethree)
-				return "Black player wins with the highest three of a kind" if has_highest_three_kind_in(blackthree, whitethree)
-				return "White player wins with the highest three of a kind" if whitethree[0] > blackthree[0]
+				winner = 'Black player wins with the highest three of a kind' if has_highest_three_kind_in(blackthree, whitethree) && winner.empty?
+				winner = 'White player wins with the highest three of a kind' if has_highest_three_kind_in(whitethree, blackthree) && winner.empty?
 			end
 
-			return "Black player wins with three of a kind" if has_in_hand(THREEKIND, blackthree)
-			return "White player wins with three of a kind" if has_in_hand(THREEKIND, whitethree)
+			winner = 'Black player wins with three of a kind' if has_in_hand(THREEKIND, blackthree) && winner.empty?
+			winner = 'White player wins with three of a kind' if has_in_hand(THREEKIND, whitethree) && winner.empty?
 
-			return TwoPairs.build(blackranks, blacksuits, whiteranks, whitesuits)
+			return TwoPairs.build(blackranks, blacksuits, whiteranks, whitesuits)if  winner.empty?
+			return winner
 		end
 
 		private
@@ -370,8 +373,8 @@ class TwoPairs < PokerHands
 				winner = 'Tie with Pairs' if have_same_pairs(blackpairs, whitepairs) && winner.empty?
 			end
 
-			winner = 'Black player wins with Pairs' if blackpairs.count == TWOPAIRS  && winner.empty?
-			winner = 'White player wins with Pairs' if whitepairs.count == TWOPAIRS && winner.empty?
+			winner = 'Black player wins with Pairs' if has_in_hand(TWOPAIRS, blackpairs)  && winner.empty?
+			winner = 'White player wins with Pairs' if has_in_hand(TWOPAIRS, whitepairs) && winner.empty?
 
 			return HighPair.build(blackranks, blacksuits, whiteranks, whitesuits) if winner.empty?
 			return winner
