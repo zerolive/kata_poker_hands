@@ -15,7 +15,12 @@ class PokerHands
 
 			RaiseInvalidHands.build(hands, RANKS, SUITS)
 
-			return StraightFlush.build(hands)
+			blackranks = player_ranks("black", hands)
+			whiteranks = player_ranks("white", hands)
+			blacksuits = player_suits("black", hands)
+			whitesuits = player_suits("white", hands)
+
+			return StraightFlush.build(blackranks, blacksuits, whiteranks, whitesuits)
 		end
 
 		private
@@ -158,11 +163,7 @@ class StraightFlush < PokerHands
 
 	class << self
 
-		def build hands
-			blackranks = player_ranks("black", hands)
-			whiteranks = player_ranks("white", hands)
-			blacksuits = player_suits("black", hands)
-			whitesuits = player_suits("white", hands)
+		def build blackranks, blacksuits, whiteranks, whitesuits
 
 			if both_have_straightflush(blackranks, blacksuits, whiteranks, whitesuits)
 				return "Black player wins with the highest straight flush" if has_highest_straight_flush_on(blackranks, whiteranks)
@@ -173,7 +174,7 @@ class StraightFlush < PokerHands
 			return "Black player wins with straight flush" if only_has_straightlush_in(blackranks, blacksuits, whiteranks)
 			return "White player wins with straight flush" if only_has_straightlush_in(whiteranks, whitesuits, blackranks)
 
-			return FourKind.build(hands)
+			return FourKind.build(blackranks, blacksuits, whiteranks, whitesuits)
 		end
 
 		private
@@ -204,9 +205,7 @@ class FourKind < PokerHands
 
 	class << self
 
-		def build hands
-			blackranks = player_ranks("black", hands)
-			whiteranks = player_ranks("white", hands)
+		def build blackranks, blacksuits, whiteranks, whitesuits
 			blackfour = duplicate_ranks(blackranks)
 			whitefour = duplicate_ranks(whiteranks)
 
@@ -218,7 +217,7 @@ class FourKind < PokerHands
 			return "Black player wins with four of a kind" if has_four_kind(blackfour)
 			return "White player wins with four of a kind" if has_four_kind(whitefour)
 
-			return FullHouse.build(hands)
+			return FullHouse.build(blackranks, blacksuits, whiteranks, whitesuits)
 		end
 
 		private
@@ -243,9 +242,7 @@ class FullHouse < PokerHands
 
 	class << self
 
-		def build hands
-			blackranks = player_ranks("black", hands)
-			whiteranks = player_ranks("white", hands)
+		def build blackranks, blacksuits, whiteranks, whitesuits
 
 			if both_have_full_house(blackranks, whiteranks)
 				return "Black player wins with the highest full house" if has_highest_full_house_on(blackranks, whiteranks)
@@ -255,7 +252,7 @@ class FullHouse < PokerHands
 			return "Black player wins with full house" if has_full_house(blackranks)
 			return "White player wins with full house" if has_full_house(whiteranks)
 
-			return Flush.build(hands)
+			return Flush.build(blackranks, blacksuits, whiteranks, whitesuits)
 		end
 
 		def has_full_house hand
@@ -278,11 +275,7 @@ class Flush < PokerHands
 
 	class << self
 
-		def build hands
-			blackranks = player_ranks("black", hands)
-			whiteranks = player_ranks("white", hands)
-			blacksuits = player_suits("black", hands)
-			whitesuits = player_suits("white", hands)
+		def build blackranks, blacksuits, whiteranks, whitesuits
 
 			if both_have_flush(blacksuits, whitesuits)
 				return "Black player wins with the highest flush" if has_highest_card(blackranks, whiteranks)
@@ -293,7 +286,7 @@ class Flush < PokerHands
 			return "Black player wins with flush" if has_flush_in(blacksuits)
 			return "White player wins with flush" if has_flush_in(whitesuits)
 
-			return Straight.build(blackranks, whiteranks)
+			return Straight.build(blackranks, blacksuits, whiteranks, whitesuits)
 		end
 
 		private
@@ -309,19 +302,20 @@ class Straight < PokerHands
 
 	class << self
 
-		def build blackhand, whitehand
-			if both_have_straight(blackhand, whitehand)
-				blackstraight = have_straight_in(blackhand)
-				whitestraight = have_straight_in(whitehand)
+		def build blackranks, blacksuits, whiteranks, whitesuits
+
+			if both_have_straight(blackranks, whiteranks)
+				blackstraight = have_straight_in(blackranks)
+				whitestraight = have_straight_in(whiteranks)
 				return "Black player wins with the highest straight" if blackstraight > whitestraight
 				return "White player wins with the highest straight" if whitestraight > blackstraight
 				return "Tie with straight" if blackstraight == whitestraight
 			end
 
-			return "Black player wins with straight" if have_straight_in(blackhand)
-			return "White player wins with straight" if have_straight_in(whitehand)
+			return "Black player wins with straight" if have_straight_in(blackranks)
+			return "White player wins with straight" if have_straight_in(whiteranks)
 
-			return ThreeKind.build(blackhand, whitehand)
+			return ThreeKind.build(blackranks, blacksuits, whiteranks, whitesuits)
 		end
 
 	end
@@ -334,9 +328,9 @@ class ThreeKind < PokerHands
 
 		THREEKIND = 3
 
-		def build blackhand, whitehand
-			blackthree = duplicate_ranks(blackhand)
-			whitethree = duplicate_ranks(whitehand)			
+		def build blackranks, blacksuits, whiteranks, whitesuits
+			blackthree = duplicate_ranks(blackranks)
+			whitethree = duplicate_ranks(whiteranks)			
 
 			if both_have_in_hand(THREEKIND, blackthree, whitethree)
 				return "Black player wins with the highest three of a kind" if has_highest_three_kind_in(blackthree, whitethree)
@@ -346,7 +340,7 @@ class ThreeKind < PokerHands
 			return "Black player wins with three of a kind" if has_in_hand(THREEKIND, blackthree)
 			return "White player wins with three of a kind" if has_in_hand(THREEKIND, whitethree)
 
-			return TwoPairs.build(blackhand, whitehand)
+			return TwoPairs.build(blackranks, blacksuits, whiteranks, whitesuits)
 		end
 
 		private
@@ -364,11 +358,11 @@ class TwoPairs < PokerHands
 
 	class << self
 
-		def build blackhand, whitehand
+		def build blackranks, blacksuits, whiteranks, whitesuits
 			winner = ''
 
-			blackpairs = duplicate_ranks(blackhand).uniq
-			whitepairs = duplicate_ranks(whitehand).uniq
+			blackpairs = duplicate_ranks(blackranks).uniq
+			whitepairs = duplicate_ranks(whiteranks).uniq
 
 			if both_have_in_hand(TWOPAIRS, blackpairs, whitepairs)
 				winner = 'White player wins with the highest Pairs' if best_pairs_belongs(whitepairs, blackpairs) && winner.empty?
@@ -379,7 +373,7 @@ class TwoPairs < PokerHands
 			winner = 'Black player wins with Pairs' if blackpairs.count == TWOPAIRS  && winner.empty?
 			winner = 'White player wins with Pairs' if whitepairs.count == TWOPAIRS && winner.empty?
 
-			return HighPair.build(blackhand, whitehand) if winner.empty?
+			return HighPair.build(blackranks, blacksuits, whiteranks, whitesuits) if winner.empty?
 			return winner
 		end
 
@@ -404,11 +398,11 @@ class HighPair < PokerHands
 
 	class << self
 
-		def build blackhand, whitehand
+		def build blackranks, blacksuits, whiteranks, whitesuits
 			winner = ''
 
-			blackpair = duplicate_ranks(blackhand)
-			whitepair = duplicate_ranks(whitehand)
+			blackpair = duplicate_ranks(blackranks)
+			whitepair = duplicate_ranks(whiteranks)
 
 			if both_have_in_hand(ONEPAIR, blackpair, whitepair)
 				winner = 'Black player wins with the highest Pair' if has_highest_pair_on(blackpair, whitepair) && winner.empty?
@@ -419,7 +413,7 @@ class HighPair < PokerHands
 			winner = 'Black player wins with Pair' if only_has_pair_in(blackpair, whitepair) && winner.empty?
 			winner = 'White player wins with Pair' if only_has_pair_in(whitepair, blackpair) && winner.empty?
 
-			return HighCard.build(blackhand, whitehand) if winner.empty?
+			return HighCard.build(blackranks, blacksuits, whiteranks, whitesuits) if winner.empty?
 			return winner
 		end
 
@@ -445,12 +439,12 @@ class HighCard < PokerHands
 
 	class << self
 
-		def build blackhand, whitehand
+		def build blackranks, blacksuits, whiteranks, whitesuits
 			winner = ''
 
-			winner = 'Black player wins with the highest card' if has_highest_card(blackhand, whitehand) && winner.empty?
-			winner = 'White player wins with the highest card' if has_highest_card(whitehand, blackhand) && winner.empty?
-			winner = 'Tie with the highest card' if both_have_same_cards(blackhand, whitehand) && winner.empty?
+			winner = 'Black player wins with the highest card' if has_highest_card(blackranks, whiteranks) && winner.empty?
+			winner = 'White player wins with the highest card' if has_highest_card(whiteranks, blackranks) && winner.empty?
+			winner = 'Tie with the highest card' if both_have_same_cards(blackranks, whiteranks) && winner.empty?
 
 			return winner
 		end
