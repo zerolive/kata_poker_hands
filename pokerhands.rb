@@ -277,16 +277,19 @@ class Flush < PokerHands
 
 		def build blackranks, blacksuits, whiteranks, whitesuits
 
+			winner = ''
+
 			if both_have_flush(blacksuits, whitesuits)
-				return "Black player wins with the highest flush" if has_highest_card(blackranks, whiteranks)
-				return "White player wins with the highest flush" if has_highest_card(whiteranks, blackranks)
-				return "Tie with flush" if both_have_same_flush(blackranks, whiteranks)
+				winner = 'Black player wins with the highest flush' if has_highest_card(blackranks, whiteranks) && winner.empty?
+				winner = 'White player wins with the highest flush' if has_highest_card(whiteranks, blackranks) && winner.empty?
+				winner = 'Tie with flush' if both_have_same_flush(blackranks, whiteranks) && winner.empty?
 			end
 
-			return "Black player wins with flush" if has_flush_in(blacksuits)
-			return "White player wins with flush" if has_flush_in(whitesuits)
+			winner = 'Black player wins with flush' if has_flush_in(blacksuits) && winner.empty?
+			winner = 'White player wins with flush' if has_flush_in(whitesuits) && winner.empty?
 
-			return Straight.build(blackranks, blacksuits, whiteranks, whitesuits)
+			return Straight.build(blackranks, blacksuits, whiteranks, whitesuits) if winner.empty?
+			return winner
 		end
 
 		private
