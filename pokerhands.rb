@@ -361,19 +361,22 @@ class TwoPairs < PokerHands
 	class << self
 
 		def build blackhand, whitehand
+			winner = ''
+
 			blackpairs = duplicate_ranks(blackhand).uniq
 			whitepairs = duplicate_ranks(whitehand).uniq
 
 			if both_have(TWOPAIRS, blackpairs, whitepairs)
-				return "White player wins with the highest Pairs" if best_pairs_belongs(whitepairs, blackpairs)
-				return "Black player wins with the highest Pairs" if best_pairs_belongs(blackpairs, whitepairs)
-				return "Tie with Pairs" if have_same_pairs(blackpairs, whitepairs)
+				winner = 'White player wins with the highest Pairs' if best_pairs_belongs(whitepairs, blackpairs) && winner.empty?
+				winner = 'Black player wins with the highest Pairs' if best_pairs_belongs(blackpairs, whitepairs) && winner.empty?
+				winner = 'Tie with Pairs' if have_same_pairs(blackpairs, whitepairs) && winner.empty?
 			end
 
-			return "Black player wins with Pairs" if blackpairs.count == TWOPAIRS
-			return "White player wins with Pairs" if whitepairs.count == TWOPAIRS
+			winner = 'Black player wins with Pairs' if blackpairs.count == TWOPAIRS  && winner.empty?
+			winner = 'White player wins with Pairs' if whitepairs.count == TWOPAIRS && winner.empty?
 
-			return HighPair.build(blackhand, whitehand)
+			return HighPair.build(blackhand, whitehand) if winner.empty?
+			return winner
 		end
 
 		private
