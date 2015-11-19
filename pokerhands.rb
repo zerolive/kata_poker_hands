@@ -68,8 +68,12 @@ class PokerHands
 				return dupcards
 			end
 
-			def both_have category, pairone, pairtwo
-				pairone.count == category && pairtwo.count == category
+			def both_have_in_hand category, handone, handtwo
+				has_in_hand(category, handone) && has_in_hand(category, handtwo)
+			end
+
+			def has_in_hand category, cards
+				cards.count == category
 			end
 
 			def have_straight_in hand
@@ -330,22 +334,18 @@ class ThreeKind < PokerHands
 			blackthree = duplicate_ranks(blackhand)
 			whitethree = duplicate_ranks(whitehand)			
 
-			if both_have(THREEKIND, blackthree, whitethree)
+			if both_have_in_hand(THREEKIND, blackthree, whitethree)
 				return "Black player wins with the highest three of a kind" if has_highest_three_kind_in(blackthree, whitethree)
 				return "White player wins with the highest three of a kind" if whitethree[0] > blackthree[0]
 			end
 
-			return "Black player wins with three of a kind" if has_three_kind_in(blackthree)
-			return "White player wins with three of a kind" if has_three_kind_in(whitethree)
+			return "Black player wins with three of a kind" if has_in_hand(THREEKIND, blackthree)
+			return "White player wins with three of a kind" if has_in_hand(THREEKIND, whitethree)
 
 			return TwoPairs.build(blackhand, whitehand)
 		end
 
 		private
-
-			def has_three_kind_in hand
-				hand.count == THREEKIND
-			end
 
 			def has_highest_three_kind_in handone, handtwo
 				handone[0] > handtwo[0]
@@ -366,7 +366,7 @@ class TwoPairs < PokerHands
 			blackpairs = duplicate_ranks(blackhand).uniq
 			whitepairs = duplicate_ranks(whitehand).uniq
 
-			if both_have(TWOPAIRS, blackpairs, whitepairs)
+			if both_have_in_hand(TWOPAIRS, blackpairs, whitepairs)
 				winner = 'White player wins with the highest Pairs' if best_pairs_belongs(whitepairs, blackpairs) && winner.empty?
 				winner = 'Black player wins with the highest Pairs' if best_pairs_belongs(blackpairs, whitepairs) && winner.empty?
 				winner = 'Tie with Pairs' if have_same_pairs(blackpairs, whitepairs) && winner.empty?
@@ -381,18 +381,14 @@ class TwoPairs < PokerHands
 
 		private
 
-			def everyone_have_pairs pairs, pairstocompare
-				pairs.count == TWOPAIRS && pairstocompare.count == TWOPAIRS
+			def best_pairs_belongs pairsone, pairstwo
+				return true if pairsone.max > pairstwo.max
+				return false if pairsone.max < pairstwo.max
+				return true if pairsone.min > pairstwo.min
 			end
 
-			def best_pairs_belongs pairs, pairstocompare
-				return true if pairs.max > pairstocompare.max
-				return false if pairs.max < pairstocompare.max
-				return true if pairs.min > pairstocompare.min
-			end
-
-			def have_same_pairs pairs, pairstocompare
-				pairs.max == pairstocompare.max && pairs.min == pairstocompare.min
+			def have_same_pairs pairsone, pairstwo
+				pairsone.max == pairstwo.max && pairsone.min == pairstwo.min
 			end
 	end
 
@@ -410,7 +406,7 @@ class HighPair < PokerHands
 			blackpair = duplicate_ranks(blackhand)
 			whitepair = duplicate_ranks(whitehand)
 
-			if both_have(ONEPAIR, blackpair, whitepair)
+			if both_have_in_hand(ONEPAIR, blackpair, whitepair)
 				winner = 'Black player wins with the highest Pair' if has_highest_pair_on(blackpair, whitepair) && winner.empty?
 				winner = 'White player wins with the highest Pair' if has_highest_pair_on(whitepair, blackpair) && winner.empty?
 				winner = 'Tie with Pair' if both_have_same_pair(blackpair, whitepair) && winner.empty?
