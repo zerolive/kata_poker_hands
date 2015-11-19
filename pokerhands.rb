@@ -206,18 +206,21 @@ class FourKind < PokerHands
 	class << self
 
 		def build blackranks, blacksuits, whiteranks, whitesuits
+			winner = ''
+
 			blackfour = duplicate_ranks(blackranks)
 			whitefour = duplicate_ranks(whiteranks)
 
 			if both_have_four_kind(blackfour, whitefour)
-				return "Black player wins with the highest four of a kind" if has_highest_four(blackfour, whitefour)
-				return "White player wins with the highest four of a kind" if has_highest_four(whitefour, blackfour)
+				winner = 'Black player wins with the highest four of a kind' if has_highest_four(blackfour, whitefour) && winner.empty?
+				winner = 'White player wins with the highest four of a kind' if has_highest_four(whitefour, blackfour) && winner.empty?
 			end
 
-			return "Black player wins with four of a kind" if has_four_kind(blackfour)
-			return "White player wins with four of a kind" if has_four_kind(whitefour)
+			winner = 'Black player wins with four of a kind' if has_four_kind(blackfour) && winner.empty?
+			winner = 'White player wins with four of a kind' if has_four_kind(whitefour) && winner.empty?
 
-			return FullHouse.build(blackranks, blacksuits, whiteranks, whitesuits)
+			return FullHouse.build(blackranks, blacksuits, whiteranks, whitesuits) if winner.empty?
+			return winner
 		end
 
 		private
