@@ -29,4 +29,16 @@ describe "Poker Hands" do
 	it "knows black's ranks" do
 		expect(BlackHand.ranks(["2c","3c","4c","5H","9h","6H","5c","4D","3D","8D"])).to eq([0,1,2,3,7])
 	end
+
+	it "knows black's suits" do
+		expect(BlackHand.suits(["2c","3c","4c","5H","9h","6H","5c","4D","3D","8D"])).to eq(["C", "C", "C", "H", "H"])
+	end
+
+	it "knows white's ranks" do
+		expect(WhiteHand.ranks(["6H","5c","4D","3D","8D","2c","3c","4c","5H","9h"])).to eq([0,1,2,3,7])
+	end
+
+	it "knows white's suits" do
+		expect(WhiteHand.suits(["6H","5c","4D","3D","8D","2c","3c","4c","5H","9h"])).to eq(["C", "C", "C", "H", "H"])
+	end
 end
