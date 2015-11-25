@@ -10,7 +10,6 @@ class PokerHands
 
 		private
 
-
 		class RaiseInvalidHands
 			
 			CARDS_IN_HANDS = 10
@@ -56,52 +55,43 @@ class PokerHands
 	end
 end
 
-		class Deck
+class Deck
 
-			RANKS = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
-			SUITS = ["C", "D", "H", "S"]
-
-			class << self
-
-				def ranks
-					RANKS
-				end
-
-				def suits
-					SUITS
-				end
-
-			end
-		end
-
-class BlackHand
-
-	RANK = 0
-	CARDS_IN_HAND = 5
-	FIRST_WHITE_CARD = 5
-
+	RANKS = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
+	SUITS = ["C", "D", "H", "S"]
 
 	class << self
 
-		def ranks hands
-			hand = []
-			hands = remove_ranks hands
-			hand = remove_other_hand hands
-			hand = translate_ranks_to_values hand
-			return hand
+		def ranks
+			RANKS
 		end
+
+		def suits
+			SUITS
+		end
+
+	end
+end
+
+class Hand
+
+	RANKS = 0
+	SUITS = 1
+	CARDS_IN_HAND = 5
+
+	class << self
 
 	private
 
-		def remove_ranks hands
-			hand = []
-			hands.each{ |card| hand << card[RANK] }
-			return hand
+		def remove_cards player, hands
+			hands.delete_at(player) while hands.size > Hand::CARDS_IN_HAND
+			return hands
 		end
 
-		def remove_other_hand hands
-			hands.delete_at(FIRST_WHITE_CARD) while hands.size > CARDS_IN_HAND
-			return hands
+		def get_from_cards ranksorsuits, hands
+			hand = []
+			hands.each{ |card| hand << card[ranksorsuits] }
+			return hand
 		end
 
 		def translate_ranks_to_values hand
@@ -110,6 +100,55 @@ class BlackHand
 				translated << Deck.ranks.index(card)
 			end
 			return translated
+		end
+	end	
+end
+
+class BlackHand < Hand
+
+	WHITE_CARDS = 5
+
+	class << self
+
+		def ranks hands
+			hand = []
+			hand = remove_cards WHITE_CARDS, hands
+			hand = get_from_cards Hand::RANKS, hand
+			hand = translate_ranks_to_values hand
+			hand
+		end
+
+		def suits hands
+			hands = hands.map(&:upcase)
+			hand = []
+			hand = remove_cards WHITE_CARDS, hands
+			hand = get_from_cards Hand::SUITS, hand
+			hand
+		end
+	end
+end
+
+
+class WhiteHand < Hand
+
+	BLACK_CARDS = 0
+
+	class << self
+
+		def ranks hands
+			hand = []
+			hand = remove_cards BLACK_CARDS, hands
+			hand = get_from_cards Hand::RANKS, hand
+			hand = translate_ranks_to_values hand
+			hand
+		end
+
+		def suits hands
+			hands = hands.map(&:upcase)
+			hand = []
+			hand = remove_cards BLACK_CARDS, hands
+			hand = get_from_cards Hand::SUITS, hand
+			hand
 		end
 
 	end
